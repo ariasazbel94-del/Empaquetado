@@ -3,114 +3,112 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Bundler v4.5 — Native Ready</title>
+    <title>Smart Bundler v5.0 — PWA Injector</title>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&family=Syne:wght@800&display=swap" rel="stylesheet">
     <style>
         :root { --accent: #00f2ff; --bg: #050508; --surface: #0e0e12; --logic: #bb86fc; --green: #2effa8; }
-        
         * { box-sizing: border-box; }
-        body { 
-            background: var(--bg); color: #f0f0f0; font-family: 'Syne', sans-serif; 
-            margin: 0; padding: 15px; display: flex; flex-direction: column; min-height: 100vh; 
-        }
-
-        h1 { font-size: clamp(1.5rem, 5vw, 2.5rem); letter-spacing: -2px; margin: 10px 0; }
-
-        /* Ajuste Dinámico de Rejilla (PC vs Móvil) */
-        .grid { 
-            display: grid; grid-template-columns: 1fr; gap: 15px; flex: 1; 
-        }
+        body { background: var(--bg); color: #f0f0f0; font-family: 'Syne', sans-serif; margin: 0; padding: 15px; display: flex; flex-direction: column; min-height: 100vh; }
+        h1 { font-size: clamp(1.2rem, 5vw, 2rem); letter-spacing: -1px; color: var(--accent); }
+        .grid { display: grid; grid-template-columns: 1fr; gap: 15px; flex: 1; }
         @media (min-width: 768px) { .grid { grid-template-columns: 1fr 1fr; } }
-
-        .editor-container { display: flex; flex-direction: column; }
-        label { font-size: 10px; color: var(--logic); text-transform: uppercase; margin-bottom: 5px; letter-spacing: 1px; }
-
-        textarea { 
-            flex: 1; min-height: 200px; background: var(--surface); border: 1px solid #1e1e26; 
-            color: var(--green); font-family: 'JetBrains Mono', monospace; padding: 12px; 
-            border-radius: 10px; font-size: 13px; outline: none; transition: 0.3s;
-        }
-        textarea:focus { border-color: var(--accent); box-shadow: 0 0 15px rgba(0, 242, 255, 0.1); }
-
-        /* Botón de Generación */
-        .btn-generate { 
-            width: 100%; padding: 18px; margin-top: 15px; background: var(--logic); 
-            color: #000; border: none; border-radius: 12px; font-weight: 900; 
-            cursor: pointer; text-transform: uppercase; font-family: 'Syne'; font-size: 14px;
-            transition: 0.3s; box-shadow: 0 5px 20px rgba(187, 134, 252, 0.2);
-        }
-        .btn-generate:hover { background: var(--accent); transform: scale(1.02); }
-
-        .footer-info { font-size: 9px; color: #444; text-align: center; margin-top: 10px; }
+        textarea { flex: 1; min-height: 200px; background: var(--surface); border: 1px solid #1e1e26; color: var(--green); font-family: 'JetBrains Mono', monospace; padding: 12px; border-radius: 10px; font-size: 13px; outline: none; }
+        .btn-pack { width: 100%; padding: 20px; margin-top: 15px; background: var(--logic); color: #000; border: none; border-radius: 12px; font-weight: 900; cursor: pointer; text-transform: uppercase; font-family: 'Syne'; }
+        .badge { font-size: 10px; color: var(--logic); text-transform: uppercase; margin-bottom: 5px; display: block; }
     </style>
 </head>
 <body>
 
-    <h1>📦 SMART <span style="color:var(--accent)">BUNDLER</span></h1>
+    <h1>📦 SMART BUNDLER <span style="color:#fff">v5.0</span></h1>
     
     <div class="grid">
-        <div class="editor-container">
-            <label>Interfaz Visual (HTML)</label>
-            <textarea id="in-html" placeholder="Pega tu HTML aquí..."></textarea>
+        <div style="display:flex; flex-direction:column;">
+            <span class="badge">Estructura HTML</span>
+            <textarea id="in-html" placeholder="Pega tu interfaz..."></textarea>
         </div>
-        <div class="editor-container">
-            <label>Lógica de Proceso (Python)</label>
-            <textarea id="in-py" placeholder="Pega tu Python aquí..."></textarea>
+        <div style="display:flex; flex-direction:column;">
+            <span class="badge">Lógica Python</span>
+            <textarea id="in-py" placeholder="Pega tu lógica..."></textarea>
         </div>
     </div>
 
-    <button class="btn-generate" onclick="buildApp()">Generar Paquete con Instalador App</button>
-    <div class="footer-info">Compatible con iOS, Android y Windows Standalone.</div>
+    <button class="btn-pack" onclick="generatePWAApp()">Empaquetar e Inyectar PWA Forzada</button>
 
 <script>
-    function buildApp() {
-        const html = document.getElementById('in-html').value || "<html><body><h1>Mi App</h1></body></html>";
+    function generatePWAApp() {
+        const html = document.getElementById('in-html').value || "<html><body><h1>App</h1></body></html>";
         const py = document.getElementById('in-py').value;
         const cTag = "<" + "/script>";
 
-        // 1. Configuración de Instalación (PWA)
-        const manifest = { "name": "PyFactory App", "display": "standalone", "start_url": ".", "theme_color": "#00f2ff" };
+        // 1. MANIFEST INLINE (Forza el modo Standalone en Android)
+        const manifest = {
+            "name": "PyFactory App",
+            "short_name": "PyApp",
+            "display": "standalone",
+            "start_url": ".",
+            "background_color": "#050508",
+            "theme_color": "#00f2ff",
+            "orientation": "portrait"
+        };
         const manifestStr = encodeURIComponent(JSON.stringify(manifest));
+        const manifestLink = `<link rel="manifest" href="data:application/manifest+json,${manifestStr}">`;
 
-        // 2. Inyección del Botón de Instalación en el paquete
-        const installUI = `
-        <div id="pwa-layer" style="display:none; position:fixed; top:10px; right:10px; z-index:10000;">
-            <button onclick="doInstall()" style="background:#2effa8; color:#000; border:none; padding:10px 15px; border-radius:8px; font-weight:bold; font-family:sans-serif; cursor:pointer; font-size:12px;">📲 INSTALAR APP</button>
+        // 2. SERVICE WORKER INJECTOR (Engaña al navegador para permitir instalación)
+        const swCode = `
+        <script>
+            if ('serviceWorker' in navigator) {
+                const sw = "self.addEventListener('fetch', (e) => e.respondWith(fetch(e.request)));";
+                const blob = new Blob([sw], {type: 'text/javascript'});
+                const url = URL.createObjectURL(blob);
+                navigator.serviceWorker.register(url);
+            }
+        ${cTag}`;
+
+        // 3. UI DE INSTALACIÓN (Botón inteligente)
+        const installLogic = `
+        <div id="pwa-btn" style="display:none; position:fixed; bottom:20px; left:50%; transform:translateX(-50%); z-index:9999;">
+            <button onclick="installNow()" style="background:#2effa8; color:#000; border:none; padding:15px 30px; border-radius:50px; font-weight:bold; font-family:sans-serif; box-shadow:0 10px 20px rgba(0,0,0,0.5);">📲 INSTALAR AHORA</button>
         </div>
         <script>
-            let defP;
-            window.addEventListener('beforeinstallprompt', (e) => { 
-                e.preventDefault(); defP = e; 
-                document.getElementById('pwa-layer').style.display = 'block'; 
+            let pEvent;
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault(); pEvent = e;
+                document.getElementById('pwa-btn').style.display = 'block';
             });
-            async function doInstall() {
-                if (defP) { 
-                    defP.prompt(); 
-                    const { outcome } = await defP.userChoice;
-                    if (outcome === 'accepted') document.getElementById('pwa-layer').style.display = 'none';
+            async function installNow() {
+                if (pEvent) {
+                    pEvent.prompt();
+                    const { outcome } = await pEvent.userChoice;
+                    if (outcome === 'accepted') document.getElementById('pwa-btn').style.display = 'none';
                 }
             }
         ${cTag}`;
 
-        // 3. Estructura de Fusión
+        // 4. ESTILOS DE "APP NATIVA" (Elimina barras y scroll elástico)
+        const appStyle = `
+        <style>
+            body { 
+                background: #050508; color: white; 
+                overscroll-behavior: none; user-select: none;
+                -webkit-tap-highlight-color: transparent;
+            }
+        </style>`;
+
+        // ENSAMBLAJE
         const runtime = '<link rel="stylesheet" href="https://pyscript.net/releases/2024.1.1/core.css"><script type="module" src="https://pyscript.net/releases/2024.1.1/core.js">' + cTag;
         const pyTag = '<script type="py">' + py + cTag;
-        const meta = '<meta name="viewport" content="width=device-width, initial-scale=1.0"><link rel="manifest" href="data:application/manifest+json,' + manifestStr + '">';
-
-        let finalDoc = html;
-        if (finalDoc.includes("</head>")) {
-            finalDoc = finalDoc.replace("</head>", meta + runtime + "</head>");
-        } else {
-            finalDoc = meta + runtime + finalDoc;
-        }
         
-        finalDoc += installUI + pyTag;
+        let final = html;
+        const headTags = manifestLink + appStyle + runtime + swCode;
+        
+        final = final.includes("</head>") ? final.replace("</head>", headTags + "</head>") : headTags + final;
+        final = final.includes("</body>") ? final.replace("</body>", installLogic + pyTag + "</body>") : final + installLogic + pyTag;
 
-        // Descarga automática
-        const blob = new Blob([finalDoc], { type: 'text/html' });
+        // Descarga
+        const blob = new Blob([final], { type: 'text/html' });
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
-        a.download = "PyApp_Pro_" + Date.now() + ".html";
+        a.download = "PyFactory_Native_App.html";
         a.click();
     }
 </script>
