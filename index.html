@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Smart Bundler v5.6 — Pure Fusion</title>
+    <title>Smart Bundler v5.7 — Naming System</title>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&family=Syne:wght@800&display=swap" rel="stylesheet">
     <style>
         :root { --accent: #ff4d4d; --bg: #050508; --surface: #0e0e12; --logic: #bb86fc; --green: #2effa8; }
@@ -14,13 +14,23 @@
             margin: 0; padding: 15px; display: flex; flex-direction: column; height: 100vh;
         }
 
-        h1 { font-size: 1.5rem; letter-spacing: -1px; margin: 0 0 15px 0; color: var(--accent); text-align: center; }
+        h1 { font-size: 1.3rem; letter-spacing: -1px; margin: 0 0 10px 0; color: var(--accent); text-align: center; }
+
+        /* Cuadro de Nombre del Proyecto */
+        .project-naming {
+            margin-bottom: 15px; display: flex; flex-direction: column;
+        }
+        .project-naming input {
+            background: var(--surface); border: 1px solid var(--logic); border-radius: 8px;
+            padding: 12px; color: #fff; font-family: 'Syne'; font-size: 14px; outline: none;
+            text-align: center; box-shadow: 0 0 10px rgba(187, 134, 252, 0.1);
+        }
 
         .grid { display: flex; flex-direction: column; gap: 10px; flex: 1; min-height: 0; }
         @media (min-width: 768px) { .grid { flex-direction: row; } }
 
         .editor-box { flex: 1; display: flex; flex-direction: column; min-height: 0; }
-        .label { font-size: 10px; color: var(--logic); margin-bottom: 4px; font-weight: bold; }
+        .label { font-size: 10px; color: var(--logic); margin-bottom: 4px; font-weight: bold; text-transform: uppercase; }
 
         textarea { 
             flex: 1; background: var(--surface); border: 1px solid #1e1e26; 
@@ -34,35 +44,37 @@
             cursor: pointer; text-transform: uppercase; font-family: 'Syne';
             box-shadow: 0 4px 15px rgba(255, 77, 77, 0.3);
         }
-
-        .status-msg { font-size: 10px; color: #555; text-align: center; margin-top: 8px; }
     </style>
 </head>
 <body>
 
-    <h1>📦 SMART BUNDLER <span style="color:#fff">v5.6</span></h1>
+    <h1>📦 SMART BUNDLER <span style="color:#fff">v5.7</span></h1>
+
+    <div class="project-naming">
+        <span class="label">Nombre del Proyecto / Archivo</span>
+        <input type="text" id="project-name" placeholder="Ej: MiAppIncreible" value="PyApp_Fusion">
+    </div>
     
     <div class="grid">
         <div class="editor-box">
-            <div class="label">INTERFAZ HTML (UI)</div>
+            <div class="label">Interfaz HTML (UI)</div>
             <textarea id="in-html" placeholder="Pega el código de la interfaz..."></textarea>
         </div>
         <div class="editor-box">
-            <div class="label">LÓGICA PYTHON (SENTINEL)</div>
+            <div class="label">Lógica Python (Sentinel)</div>
             <textarea id="in-py" placeholder="Pega el código Python..."></textarea>
         </div>
     </div>
 
-    <button class="btn-main" onclick="generateApp()">Fusionar y Descargar HTML</button>
-    <div class="status-msg">Genera un archivo único con PyScript integrado.</div>
+    <button class="btn-main" onclick="generateApp()">Fusionar y Descargar</button>
 
 <script>
     function generateApp() {
         const html = document.getElementById('in-html').value || "<html><body><h1 style='color:white'>App Lista</h1></body></html>";
         const py = document.getElementById('in-py').value;
+        const projName = document.getElementById('project-name').value || "Proyecto_Sin_Nombre";
         const cTag = "<" + "/script>";
 
-        // --- INYECCIÓN DE RECURSOS BÁSICOS ---
         const headTags = `
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="https://pyscript.net/releases/2024.1.1/core.css">
@@ -73,27 +85,24 @@
 
         const pyCode = '<script type="py">' + py + cTag;
 
-        // Ensamblaje Final
         let doc = html;
-        // Inyectamos el runtime en el head
         if (doc.includes("</head>")) {
             doc = doc.replace("</head>", headTags + "</head>");
         } else {
             doc = headTags + doc;
         }
         
-        // Inyectamos el código Python al final del body
         if (doc.includes("</body>")) {
             doc = doc.replace("</body>", pyCode + "</body>");
         } else {
             doc = doc + pyCode;
         }
 
-        // Descarga
         const blob = new Blob([doc], { type: 'text/html' });
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
-        a.download = "PyApp_Fusion_" + Date.now() + ".html";
+        // Usamos el nombre del cuadro para el archivo
+        a.download = projName.replace(/\s+/g, '_') + ".html";
         a.click();
     }
 </script>
