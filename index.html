@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Smart Bundler v5.5 — PWA Injector Pro</title>
+    <title>Smart Bundler v5.6 — Pure Fusion</title>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&family=Syne:wght@800&display=swap" rel="stylesheet">
     <style>
-        :root { --accent: #00f2ff; --bg: #050508; --surface: #0e0e12; --logic: #bb86fc; --green: #2effa8; }
+        :root { --accent: #ff4d4d; --bg: #050508; --surface: #0e0e12; --logic: #bb86fc; --green: #2effa8; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
         body { 
@@ -29,10 +29,10 @@
         }
 
         .btn-main { 
-            width: 100%; padding: 18px; margin-top: 15px; background: var(--logic); 
-            color: #000; border: none; border-radius: 12px; font-weight: 900; 
+            width: 100%; padding: 18px; margin-top: 15px; background: var(--accent); 
+            color: #fff; border: none; border-radius: 12px; font-weight: 900; 
             cursor: pointer; text-transform: uppercase; font-family: 'Syne';
-            box-shadow: 0 4px 15px rgba(187, 134, 252, 0.3);
+            box-shadow: 0 4px 15px rgba(255, 77, 77, 0.3);
         }
 
         .status-msg { font-size: 10px; color: #555; text-align: center; margin-top: 8px; }
@@ -40,7 +40,7 @@
 </head>
 <body>
 
-    <h1>📦 SMART BUNDLER <span style="color:#fff">v5.5</span></h1>
+    <h1>📦 SMART BUNDLER <span style="color:#fff">v5.6</span></h1>
     
     <div class="grid">
         <div class="editor-box">
@@ -53,8 +53,8 @@
         </div>
     </div>
 
-    <button class="btn-main" onclick="generateApp()">Empaquetar y Activar PWA</button>
-    <div class="status-msg">Inyecta automáticamente Manifest, Service Worker y Botón de Instalación.</div>
+    <button class="btn-main" onclick="generateApp()">Fusionar y Descargar HTML</button>
+    <div class="status-msg">Genera un archivo único con PyScript integrado.</div>
 
 <script>
     function generateApp() {
@@ -62,63 +62,38 @@
         const py = document.getElementById('in-py').value;
         const cTag = "<" + "/script>";
 
-        // --- INYECCIÓN DE FUERZA PWA ---
-        const manifest = {
-            "name": "PyFactory Native App",
-            "short_name": "PyApp",
-            "display": "standalone",
-            "start_url": ".",
-            "background_color": "#050508",
-            "theme_color": "#00f2ff",
-            "icons": [{ "src": "https://pyscript.net/assets/pyscript-logo.png", "sizes": "512x512", "type": "image/png" }]
-        };
-
+        // --- INYECCIÓN DE RECURSOS BÁSICOS ---
         const headTags = `
-        <meta name="mobile-web-app-capable" content="yes">
-        <meta name="apple-mobile-web-app-capable" content="yes">
-        <link rel="manifest" href="data:application/manifest+json,${encodeURIComponent(JSON.stringify(manifest))}">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="https://pyscript.net/releases/2024.1.1/core.css">
         <style>
-            body { background: #050508; color: white; margin: 0; overscroll-behavior: none; }
-            #pwa-installer { display: none; position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); z-index: 1000; }
-            #btn-ins { background: #2effa8; color: black; border: none; padding: 15px 25px; border-radius: 30px; font-weight: 800; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+            body { background: #050508; color: white; margin: 0; }
         </style>
         <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js">${cTag}`;
-
-        const installLogic = `
-        <div id="pwa-installer"><button id="btn-ins" onclick="doInstall()">📲 INSTALAR APP</button></div>
-        <script>
-            let deferredPrompt;
-            if ('serviceWorker' in navigator) {
-                const sw = "self.addEventListener('fetch', (e) => e.respondWith(fetch(e.request)));";
-                const blob = new Blob([sw], {type: 'text/javascript'});
-                navigator.serviceWorker.register(URL.createObjectURL(blob));
-            }
-            window.addEventListener('beforeinstallprompt', (e) => {
-                e.preventDefault(); deferredPrompt = e;
-                document.getElementById('pwa-installer').style.display = 'block';
-            });
-            async function doInstall() {
-                if (deferredPrompt) {
-                    deferredPrompt.prompt();
-                    const { outcome } = await deferredPrompt.userChoice;
-                    if (outcome === 'accepted') document.getElementById('pwa-installer').style.display = 'none';
-                }
-            }
-        ${cTag}`;
 
         const pyCode = '<script type="py">' + py + cTag;
 
         // Ensamblaje Final
         let doc = html;
-        doc = doc.includes("</head>") ? doc.replace("</head>", headTags + "</head>") : headTags + doc;
-        doc = doc.includes("</body>") ? doc.replace("</body>", installLogic + pyCode + "</body>") : doc + installLogic + pyCode;
+        // Inyectamos el runtime en el head
+        if (doc.includes("</head>")) {
+            doc = doc.replace("</head>", headTags + "</head>");
+        } else {
+            doc = headTags + doc;
+        }
+        
+        // Inyectamos el código Python al final del body
+        if (doc.includes("</body>")) {
+            doc = doc.replace("</body>", pyCode + "</body>");
+        } else {
+            doc = doc + pyCode;
+        }
 
         // Descarga
         const blob = new Blob([doc], { type: 'text/html' });
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
-        a.download = "PyApp_Native_" + Date.now() + ".html";
+        a.download = "PyApp_Fusion_" + Date.now() + ".html";
         a.click();
     }
 </script>
