@@ -1,9 +1,8 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Smart Bundler v5.7 — Naming System</title>
+    <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Smart Bundler v5.8 — UTF-8 Fix</title>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&family=Syne:wght@800&display=swap" rel="stylesheet">
     <style>
         :root { --accent: #ff4d4d; --bg: #050508; --surface: #0e0e12; --logic: #bb86fc; --green: #2effa8; }
@@ -16,14 +15,11 @@
 
         h1 { font-size: 1.3rem; letter-spacing: -1px; margin: 0 0 10px 0; color: var(--accent); text-align: center; }
 
-        /* Cuadro de Nombre del Proyecto */
-        .project-naming {
-            margin-bottom: 15px; display: flex; flex-direction: column;
-        }
+        .project-naming { margin-bottom: 15px; display: flex; flex-direction: column; }
         .project-naming input {
             background: var(--surface); border: 1px solid var(--logic); border-radius: 8px;
             padding: 12px; color: #fff; font-family: 'Syne'; font-size: 14px; outline: none;
-            text-align: center; box-shadow: 0 0 10px rgba(187, 134, 252, 0.1);
+            text-align: center;
         }
 
         .grid { display: flex; flex-direction: column; gap: 10px; flex: 1; min-height: 0; }
@@ -48,38 +44,41 @@
 </head>
 <body>
 
-    <h1>📦 SMART BUNDLER <span style="color:#fff">v5.7</span></h1>
+    <h1>📦 SMART BUNDLER <span style="color:#fff">v5.8</span></h1>
 
     <div class="project-naming">
-        <span class="label">Nombre del Proyecto / Archivo</span>
-        <input type="text" id="project-name" placeholder="Ej: MiAppIncreible" value="PyApp_Fusion">
+        <span class="label">Nombre del Archivo</span>
+        <input type="text" id="project-name" placeholder="Nombre_de_tu_App" value="PyApp_Fixed">
     </div>
     
     <div class="grid">
         <div class="editor-box">
             <div class="label">Interfaz HTML (UI)</div>
-            <textarea id="in-html" placeholder="Pega el código de la interfaz..."></textarea>
+            <textarea id="in-html" placeholder="Pega el HTML aquí..."></textarea>
         </div>
         <div class="editor-box">
             <div class="label">Lógica Python (Sentinel)</div>
-            <textarea id="in-py" placeholder="Pega el código Python..."></textarea>
+            <textarea id="in-py" placeholder="Pega el Python aquí..."></textarea>
         </div>
     </div>
 
-    <button class="btn-main" onclick="generateApp()">Fusionar y Descargar</button>
+    <button class="btn-main" onclick="generateApp()">Fusionar y Corregir Textos</button>
 
 <script>
     function generateApp() {
-        const html = document.getElementById('in-html').value || "<html><body><h1 style='color:white'>App Lista</h1></body></html>";
+        const html = document.getElementById('in-html').value || "<html><body><h1>App</h1></body></html>";
         const py = document.getElementById('in-py').value;
-        const projName = document.getElementById('project-name').value || "Proyecto_Sin_Nombre";
+        const projName = document.getElementById('project-name').value || "App_Sin_Nombre";
         const cTag = "<" + "/script>";
 
+        // INYECCIÓN DE CABECERA CON UTF-8 (Esto arregla las letras raras)
         const headTags = `
+        <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="https://pyscript.net/releases/2024.1.1/core.css">
         <style>
-            body { background: #050508; color: white; margin: 0; }
+            body { background: #050508; color: white; margin: 0; font-family: sans-serif; }
+            #output { font-size: 28px; font-weight: bold; } /* Letra más grande */
         </style>
         <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js">${cTag}`;
 
@@ -98,10 +97,10 @@
             doc = doc + pyCode;
         }
 
-        const blob = new Blob([doc], { type: 'text/html' });
+        // Crear el archivo con codificación explícita
+        const blob = new Blob([doc], { type: 'text/html;charset=utf-8' });
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
-        // Usamos el nombre del cuadro para el archivo
         a.download = projName.replace(/\s+/g, '_') + ".html";
         a.click();
     }
