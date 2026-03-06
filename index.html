@@ -2,213 +2,86 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PyFactory — Smart Bundler v2.1</title>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+    <title>PyFactory — PWA Smart Bundler v4.0</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&family=Syne:wght@800&display=swap" rel="stylesheet">
     <style>
-        :root { 
-            --accent: #00f2ff; 
-            --bg: #050508; 
-            --surface: #0e0e12;
-            --border: #1e1e26;
-            --logic: #bb86fc;
-            --green: #2effa8;
-        }
-        
-        body { 
-            background: var(--bg); 
-            color: #f0f0f0; 
-            font-family: 'Syne', sans-serif; 
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            box-sizing: border-box;
-        }
-
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-bottom: 20px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .title { font-weight: 800; letter-spacing: -1px; font-size: 24px; }
-        .version { color: var(--accent); font-size: 12px; margin-left: 10px; }
-
-        .container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            flex: 1;
-            margin-top: 20px;
-        }
-
-        .panel { display: flex; flex-direction: column; }
-        label { font-size: 11px; text-transform: uppercase; color: var(--logic); margin-bottom: 8px; font-weight: 700; }
-        
-        textarea { 
-            width: 100%; 
-            flex: 1;
-            background: var(--surface); 
-            border: 1px solid var(--border); 
-            color: var(--green); 
-            font-family: 'JetBrains Mono', monospace; 
-            padding: 15px; 
-            border-radius: 8px; 
-            resize: none;
-            outline: none;
-            box-sizing: border-box;
-            font-size: 13px;
-        }
-
-        textarea:focus { border-color: var(--accent); box-shadow: 0 0 10px rgba(0, 242, 255, 0.1); }
-
-        .controls {
-            padding: 20px 0;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .btn-pack { 
-            width: 100%; 
-            padding: 20px; 
-            background: var(--accent); 
-            color: #000; 
-            font-weight: 800; 
-            border: none; 
-            border-radius: 8px; 
-            cursor: pointer; 
-            font-family: 'Syne';
-            text-transform: uppercase;
-            font-size: 14px;
-            transition: 0.3s;
-        }
-
-        .btn-pack:hover { background: var(--green); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(46, 255, 168, 0.3); }
-        .btn-pack:active { transform: translateY(0); }
-
-        #log { font-family: 'JetBrains Mono'; font-size: 10px; color: #666; text-align: center; }
+        :root { --accent: #00f2ff; --bg: #050508; --surface: #0e0e12; --logic: #bb86fc; }
+        body { background: var(--bg); color: #f0f0f0; font-family: 'Syne', sans-serif; padding: 20px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        textarea { width: 100%; height: 300px; background: var(--surface); border: 1px solid #1e1e26; color: #2effa8; font-family: 'JetBrains Mono'; padding: 15px; border-radius: 8px; box-sizing: border-box; }
+        .btn-pwa { width: 100%; padding: 20px; margin-top: 20px; background: var(--logic); color: #000; border: none; border-radius: 8px; font-weight: 800; cursor: pointer; text-transform: uppercase; font-family: 'Syne'; font-size: 16px; box-shadow: 0 0 20px rgba(187, 134, 252, 0.2); }
+        .btn-pwa:hover { background: var(--accent); box-shadow: 0 0 30px rgba(0, 242, 255, 0.4); }
+        .info { margin-top: 15px; font-size: 11px; color: #666; text-align: center; }
     </style>
 </head>
 <body>
 
-<header>
-    <div class="title">PYFACTORY <span style="color:var(--logic)">BUNDLER</span><span class="version">V2.1 STANDALONE</span></div>
-    <div style="font-size: 10px; color: var(--green);">[ READY TO EXPORT ]</div>
-</header>
+    <h1 style="letter-spacing:-2px">📦 SMART BUNDLER <span style="color:var(--logic)">PWA EDITION</span></h1>
 
-<div class="container">
-    <div class="panel">
-        <label>Estructura Visual (HTML)</label>
-        <textarea id="input-html" placeholder="Pega aquí tu código HTML (O déjalo vacío para usar el contenedor por defecto)..."></textarea>
+    <div class="grid">
+        <textarea id="in-html" placeholder="Pega tu Interfaz HTML..."></textarea>
+        <textarea id="in-py" placeholder="Pega tu Lógica Python..."></textarea>
     </div>
-    <div class="panel">
-        <label>Lógica de Ejecución (PYTHON)</label>
-        <textarea id="input-py" placeholder="Pega aquí tu lógica de Python analizada por el Sentinel..."></textarea>
-    </div>
-</div>
 
-<div class="controls">
-    <button class="btn-pack" onclick="smartPack()">Generar y Descargar Paquete (.html)</button>
-    <div id="log">Introduce código y presiona el botón para empaquetar.</div>
-</div>
+    <button class="btn-pwa" onclick="generatePWA()">Generar Lector de App Independiente (.html)</button>
+    <div class="info">El archivo resultante se podrá instalar como una App nativa en tu PC o Celular.</div>
 
 <script>
-    function smartPack() {
-        const htmlRaw = document.getElementById('input-html').value.trim();
-        const pyRaw = document.getElementById('input-py').value.trim();
-        const log = document.getElementById('log');
-        
-        if (!htmlRaw && !pyRaw) {
-            alert("⚠️ Error: No hay nada que empaquetar. Introduce HTML o Python.");
-            return;
-        }
-
-        log.innerText = "Procesando inyección de dependencias...";
-        log.style.color = "var(--accent)";
-
-        // Técnica de fragmentación para evitar errores de cierre de etiqueta en JS
+    function generatePWA() {
+        const html = document.getElementById('in-html').value || "<html><body><h1>Mi App</h1></body></html>";
+        const py = document.getElementById('in-py').value;
         const cTag = "<" + "/script>";
         
-        const pyRuntime = `
-    <link rel="stylesheet" href="https://pyscript.net/releases/2024.1.1/core.css">
-    <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js">${cTag}`;
+        // 1. Configuración de App Independiente (Manifest)
+        // Usamos un Data URI para el manifest para que todo viva en un solo archivo
+        const manifest = {
+            "name": "PyFactory App",
+            "short_name": "PyApp",
+            "display": "standalone",
+            "start_url": ".",
+            "background_color": "#050508",
+            "theme_color": "#00f2ff"
+        };
+        const manifestStr = encodeURIComponent(JSON.stringify(manifest));
+        const manifestTag = `<link rel="manifest" href="data:application/manifest+json,${manifestStr}">`;
 
-        let finalDoc = "";
+        // 2. Bloqueo de UI de Navegador (CSS para sentirlo como App)
+        const appStyle = `
+        <style>
+            body { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; overflow: hidden; }
+            /* Evita el scroll elástico en móviles */
+            html, body { position: fixed; overflow: hidden; width: 100%; height: 100%; }
+        </style>`;
 
-        // LÓGICA DE EMPAQUETADO CONDICIONAL
+        // 3. Runtime de PyScript
+        const runtime = `
+        <link rel="stylesheet" href="https://pyscript.net/releases/2024.1.1/core.css">
+        <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js">${cTag}`;
+
+        // 4. Lógica Python
+        const scriptPy = `\n<script type="py">\n${py}\n${cTag}\n`;
+
+        // Fusión Final
+        let doc = html;
+        if (doc.includes("</head>")) {
+            doc = doc.replace("</head>", manifestTag + appStyle + runtime + "</head>");
+        } else {
+            doc = manifestTag + appStyle + runtime + doc;
+        }
         
-        // Escenario 1: Solo HTML (Limpieza y exportación directa)
-        if (htmlRaw && !pyRaw) {
-            finalDoc = htmlRaw;
-        } 
-        // Escenario 2: Solo Python (Creación de shell autónomo)
-        else if (!htmlRaw && pyRaw) {
-            finalDoc = `<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>PyFactory Export</title>
-    ${pyRuntime}
-</head>
-<body style="background:#050508; color:#2effa8; font-family:monospace; padding:30px; line-height:1.6;">
-    <h2 style="color:#bb86fc; border-bottom:1px solid #1e1e26; padding-bottom:10px;">Consola de Salida</h2>
-    <script type="py">
-${pyRaw}
-    ${cTag}
-</body>
-</html>`;
-        } 
-        // Escenario 3: Ambos (Fusión Arquitectónica)
-        else {
-            const scriptPyTag = `\n<script type="py">\n${pyRaw}\n${cTag}\n`;
-            finalDoc = htmlRaw;
-            
-            // Inyectar Runtime en el HEAD
-            if (finalDoc.includes("</head>")) {
-                finalDoc = finalDoc.replace("</head>", pyRuntime + "\n</head>");
-            } else {
-                finalDoc = pyRuntime + "\n" + finalDoc;
-            }
-            
-            // Inyectar Python en el BODY
-            if (finalDoc.includes("</body>")) {
-                finalDoc = finalDoc.replace("</body>", scriptPyTag + "</body>");
-            } else {
-                finalDoc = finalDoc + scriptPyTag;
-            }
+        if (doc.includes("</body>")) {
+            doc = doc.replace("</body>", scriptPy + "</body>");
+        } else {
+            doc = doc + scriptPy;
         }
 
-        // PROCESO DE DESCARGA
-        try {
-            const blob = new Blob([finalDoc], { type: 'text/html' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            
-            a.href = url;
-            a.download = "pyfactory_app_" + Date.now() + ".html";
-            
-            // Añadir al DOM temporalmente para compatibilidad móvil
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            
-            // Liberar memoria
-            setTimeout(() => URL.revokeObjectURL(url), 100);
-            
-            log.innerText = "✅ ¡Paquete generado con éxito!";
-            log.style.color = "var(--green)";
-        } catch (e) {
-            console.error(e);
-            log.innerText = "❌ Error crítico en la generación.";
-            log.style.color = "var(--error)";
-        }
+        // Descarga
+        const blob = new Blob([doc], { type: 'text/html' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = "PyFactory_Standalone_App.html";
+        a.click();
     }
 </script>
-
 </body>
 </html>
